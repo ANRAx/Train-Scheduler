@@ -48,4 +48,22 @@ $("add-train-btn").on("click", function(event) {
         firstTrain: firstTrain,
         frequency: frequency
     };
-})
+
+    // Uploads train data to the database
+    trainData.ref().push(newTrain);
+
+    // log everything to console just to see that it's working
+    console.log(newTrain.name);
+    console.log(newTrain.destination);
+    console.log(newTrain.firstTrain);
+    console.log(newTrain.frequency);
+
+    // Alert user train has been added 
+    alert("Train successfully added");
+
+    // Clear text boxes after user input
+    $("#train-name-input").val("");
+    $("#destination-input").val("");
+    $("#first-train-input").val("");
+    $("#frequency-input").val("");
+});
