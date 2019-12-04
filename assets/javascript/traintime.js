@@ -7,19 +7,21 @@
 
 // +++ Step 1  +++
 // Initialize Firebase
-let firebaseConfig = {
-apiKey: "AIzaSyALK3Eb8Tx1fW9IprvnE6rvQaLCTChLPj0",
-authDomain: "train-time-tracker-2a208.firebaseapp.com",
-databaseURL: "https://train-time-tracker-2a208.firebaseio.com",
-projectId: "train-time-tracker-2a208",
-storageBucket: "train-time-tracker-2a208.appspot.com",
-messagingSenderId: "491611444773",
-appId: "1:491611444773:web:3c2f68dc38344df6eb91cc"
-};
-
+// Your web app's Firebase configuration
+ var firebaseConfig = {
+    apiKey: "AIzaSyALK3Eb8Tx1fW9IprvnE6rvQaLCTChLPj0",
+    authDomain: "train-time-tracker-2a208.firebaseapp.com",
+    databaseURL: "https://train-time-tracker-2a208.firebaseio.com",
+    projectId: "train-time-tracker-2a208",
+    storageBucket: "train-time-tracker-2a208.appspot.com",
+    messagingSenderId: "491611444773",
+    appId: "1:491611444773:web:3c2f68dc38344df6eb91cc"
+  };
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-let trainData = firebase.database();
+
+const trainData = firebase.firestore();
 
 // +++ Step 2 & Step 3 +++
 // Populate Firebase Database with initial data (done in Firebase GUI)
