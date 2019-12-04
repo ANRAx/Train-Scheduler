@@ -41,6 +41,7 @@ $("add-train-btn").on("click", function(event) {
    let frequency = $("#frequency-input")
         .val()
         .trim();
+
     // create a local temporary object for holding train data
    let newTrain = {
         name: trainName,
@@ -66,4 +67,51 @@ $("add-train-btn").on("click", function(event) {
     $("#destination-input").val("");
     $("#first-train-input").val("");
     $("#frequency-input").val("");
+});
+
+// +++ Step 4 +++
+// Create a Firebase event to add trains to database and a row in the HTML when user adds entry
+trainData.ref().on("child_added", function(childSnapshot, prevChildKey) {
+    console.log(childSnapshot.val());
+
+    // store data into a variable 
+    let tName = childSnapshot.val().name;
+    let tDestination = childSnapshot.val().destination;
+    let tFrequency = childSnapshot.val().frequency;
+    let tFirstTrain = childSnapshot.val().firstTrain;
+
+    let timeArr = tFirstTrain.split(":");
+    let trainTime = moment()
+        .hours(timeArr[0])
+        .minutes(timeArr[1]);
+    let maxMoment = moment.max(moment(), trainTime);
+    let tMinutes;
+    let tArrival;
+
+    if (maxMoment === trainTime) {
+        tArrival = trainTime.format("hh:mm A");
+        tMinutes = trainTime.diff(moment(), "minutes");
+    } else {
+        let differenceTimes = moment().diff(trainTime, "minutes");
+        let tRemainder = differenceTimes % tFrequency;
+
+        tMinutes = tFrequency - tRemainder;
+
+        tArrival = moment()
+            .add(tMinutes, "m")
+            .format("hh:mm A");
+    }
+    console.log("tMinutes:", tMinutes);
+    console.log("tArrival:", tArrival);
+
+    // Add each train's data into the table
+    $("#train-table > tbody").append(
+        $("<tr>").append(
+            $("<td>").text(tName),
+            $("<td>").text(tDestination),
+            $("<td>").text(tFrequency),
+            $("<td>").text(tArrival),
+            $("<td>").text(tMinutes)
+        )
+    );
 });
