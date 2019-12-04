@@ -1,4 +1,17 @@
+body {
+    background-color: black;
+}
+
 .jumbotron {
-    background-color: brown;
-    color: white;
+    background-color: rgb(247, 95, 39);
+    color: black;
+}
+
+.btn-primary {
+    background-color: black;
+    color: rgb(247, 95, 39);
+}
+
+.card {
+    background-color: burlywood;
 }
