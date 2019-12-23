@@ -1,51 +1,40 @@
-// Steps Process
-// 1.Create a Firebase link
-// 2. Create initial train data in database 
-// 3. Create button for adding new trains -> update html -> update database
-// 4. Create a way to retrieve trains from the trainlist 
-// 5. Create a way to calculate the time way using difference between start and current time 
+// Steps to complete:
 
-// +++ Step 1  +++
+// 1. Create Firebase link
+// 2. Create initial train data in database
+// 3. Create button for adding new trains - then update the html + update the database
+// 4. Create a way to retrieve trains from the trainlist.
+// 5. Create a way to calculate the time way. Using difference between start and current time.
+//    Then take the difference and modulus by frequency. (This step can be completed in either 3 or 4)
+
 // Initialize Firebase
-// Your web app's Firebase configuration
- var firebaseConfig = {
-    apiKey: "AIzaSyALK3Eb8Tx1fW9IprvnE6rvQaLCTChLPj0",
-    authDomain: "train-time-tracker-2a208.firebaseapp.com",
-    databaseURL: "https://train-time-tracker-2a208.firebaseio.com",
-    projectId: "train-time-tracker-2a208",
-    storageBucket: "train-time-tracker-2a208.appspot.com",
-    messagingSenderId: "491611444773",
-    appId: "1:491611444773:web:3c2f68dc38344df6eb91cc"
-  };
+var config = {
+    apiKey: "AIzaSyBCgw6ZFmDnnfYcx4o4I5dbneB3kM6hGgI",
+    authDomain: "triple-t-threat.firebaseapp.com",
+    databaseURL: "https://triple-t-threat.firebaseio.com",
+    storageBucket: "triple-t-threat.appspot.com"
+};
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(config);
 
 
-const trainData = firebase.firestore();
+var trainData = firebase.database();
 
-// +++ Step 2 & Step 3 +++
-// Populate Firebase Database with initial data (done in Firebase GUI)
-// Create Buttons for adding trains
-$("add-train-btn").on("click", function(event) {
-    // prevent the default form submit behavior
+
+// 2. Populate Firebase Database with initial data (in this case, I did this via Firebase GUI)
+// 3. Button for adding trains
+$("#add-train-btn").on("click", function (event) {
+    // Prevent the default form submit behavior
     event.preventDefault();
 
-    // grab user inputs
-   let trainName = $("#train-name-input")
-        .val()
-        .trim();
-   let destination = $("#destination-input")
-        .val()
-        .trim();
-   let firstTrain = $("#first-train-input")
-        .val()
-        .trim();
-   let frequency = $("#frequency-input")
-        .val()
-        .trim();
+    // Grabs user input
+    var trainName = $("#train-name-input").val().trim();
+    var destination = $("#destination-input").val().trim();
+    var firstTrain = $("#first-train-input").val().trim();
+    var frequency = $("#frequency-input").val().trim();
 
-    // create a local temporary object for holding train data
-   let newTrain = {
+    // Creates local "temporary" object for holding train data
+    var newTrain = {
         name: trainName,
         destination: destination,
         firstTrain: firstTrain,
@@ -55,50 +44,52 @@ $("add-train-btn").on("click", function(event) {
     // Uploads train data to the database
     trainData.ref().push(newTrain);
 
-    // log everything to console just to see that it's working
+    // Logs everything to console
     console.log(newTrain.name);
     console.log(newTrain.destination);
     console.log(newTrain.firstTrain);
     console.log(newTrain.frequency);
 
-    // Alert user train has been added 
+    // Alert
     alert("Train successfully added");
 
-    // Clear text boxes after user input
+    // Clears all of the text-boxes
     $("#train-name-input").val("");
     $("#destination-input").val("");
     $("#first-train-input").val("");
     $("#frequency-input").val("");
 });
 
-// +++ Step 4 +++
-// Create a Firebase event to add trains to database and a row in the HTML when user adds entry
-trainData.ref().on("child_added", function(childSnapshot, prevChildKey) {
+// 4. Create Firebase event for adding trains to the database and a row in the html when a user adds an entry
+trainData.ref().on("child_added", function (childSnapshot, prevChildKey) {
     console.log(childSnapshot.val());
 
-    // store data into a variable 
-    let tName = childSnapshot.val().name;
-    let tDestination = childSnapshot.val().destination;
-    let tFrequency = childSnapshot.val().frequency;
-    let tFirstTrain = childSnapshot.val().firstTrain;
+    // Store everything into a variable.
+    var tName = childSnapshot.val().name;
+    var tDestination = childSnapshot.val().destination;
+    var tFrequency = childSnapshot.val().frequency;
+    var tFirstTrain = childSnapshot.val().firstTrain;
 
-    let timeArr = tFirstTrain.split(":");
-    let trainTime = moment()
+    var timeArr = tFirstTrain.split(":");
+    var trainTime = moment()
         .hours(timeArr[0])
         .minutes(timeArr[1]);
-    let maxMoment = moment.max(moment(), trainTime);
-    let tMinutes;
-    let tArrival;
+    var maxMoment = moment.max(moment(), trainTime);
+    var tMinutes;
+    var tArrival;
 
+    // If the first train is later than the current time, sent arrival to the first train time
     if (maxMoment === trainTime) {
         tArrival = trainTime.format("hh:mm A");
         tMinutes = trainTime.diff(moment(), "minutes");
     } else {
-        let differenceTimes = moment().diff(trainTime, "minutes");
-        let tRemainder = differenceTimes % tFrequency;
-
+        // Calculate the minutes until arrival using hardcore math
+        // To calculate the minutes till arrival, take the current time in unix subtract the FirstTrain time
+        // and find the modulus between the difference and the frequency.
+        var differenceTimes = moment().diff(trainTime, "minutes");
+        var tRemainder = differenceTimes % tFrequency;
         tMinutes = tFrequency - tRemainder;
-
+        // To calculate the arrival time, add the tMinutes to the current time
         tArrival = moment()
             .add(tMinutes, "m")
             .format("hh:mm A");
@@ -117,3 +108,35 @@ trainData.ref().on("child_added", function(childSnapshot, prevChildKey) {
         )
     );
 });
+
+// Assume the following situations.
+
+// (TEST 1)
+// First Train of the Day is 3:00 AM
+// Assume Train comes every 3 minutes.
+// Assume the current time is 3:16 AM....
+// What time would the next train be...? ( Let's use our brains first)
+// It would be 3:18 -- 2 minutes away
+
+// (TEST 2)
+// First Train of the Day is 3:00 AM
+// Assume Train comes every 7 minutes.
+// Assume the current time is 3:16 AM....
+// What time would the next train be...? (Let's use our brains first)
+// It would be 3:21 -- 5 minutes away
+
+// ==========================================================
+
+// Solved Mathematically
+// Test case 1:
+// 16 - 00 = 16
+// 16 % 3 = 1 (Modulus is the remainder)
+// 3 - 1 = 2 minutes away
+// 2 + 3:16 = 3:18
+
+// Solved Mathematically
+// Test case 2:
+// 16 - 00 = 16
+// 16 % 7 = 2 (Modulus is the remainder)
+// 7 - 2 = 5 minutes away
+// 5 + 3:16 = 3:21
